@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ForGifts - Инвентарь</title>
+    <title>ForGifts - Цифровой инвентарь</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -14,7 +14,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
             min-height: 100vh;
             padding: 20px;
             color: #ffffff;
@@ -23,68 +23,146 @@
         .container {
             max-width: 600px;
             margin: 0 auto;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .header {
             text-align: center;
             margin-bottom: 30px;
-            padding: 20px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
         .header h1 {
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 32px;
+            font-weight: 800;
             margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 20px rgba(0, 114, 255, 0.3);
         }
 
         .header p {
             font-size: 16px;
             opacity: 0.9;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .emoji-header {
+            font-size: 48px;
+            margin-bottom: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .stats-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stats-item:last-child {
+            border-bottom: none;
+        }
+
+        .stats-label {
+            font-size: 14px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stats-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00c6ff;
         }
 
         .inventory-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
 
         .nft-item {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(0, 198, 255, 0.2), rgba(0, 114, 255, 0.2));
             border-radius: 16px;
             padding: 20px;
             text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
             cursor: pointer;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(0, 198, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nft-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 1%);
+            background-size: 20px 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .nft-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 12px 40px rgba(0, 114, 255, 0.4);
+        }
+
+        .nft-item:hover::before {
+            opacity: 1;
         }
 
         .nft-icon {
             width: 100px;
             height: 100px;
             margin: 0 auto 15px;
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 48px;
             border: 2px solid rgba(255, 255, 255, 0.3);
+            animation: pulse 2s infinite;
         }
 
-        .nft-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 10px;
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .nft-title {
@@ -92,6 +170,13 @@
             font-weight: 600;
             margin-top: 10px;
             opacity: 0.9;
+        }
+
+        .nft-id {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 5px;
+            font-family: monospace;
         }
 
         .empty-state {
@@ -113,9 +198,27 @@
             opacity: 0.8;
         }
 
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            font-size: 12px;
+            opacity: 0.7;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .emoji-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            font-size: 24px;
+            margin: 20px 0;
+            opacity: 0.8;
+        }
+
         @media (max-width: 480px) {
             .inventory-grid {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
                 gap: 15px;
             }
 
@@ -124,28 +227,65 @@
                 height: 80px;
                 font-size: 40px;
             }
+
+            .header h1 {
+                font-size: 26px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎁 Мой Инвентарь</h1>
-            <p>Ваши NFT подарки</p>
+            <div class="emoji-header">🌊✨</div>
+            <h1>ForGifts Инвентарь</h1>
+            <p>Ваши цифровые сокровища в безопасности</p>
+            <div class="emoji-row">
+                <span>🎁</span>
+                <span>💎</span>
+                <span>🔵</span>
+                <span>✨</span>
+                <span>🚀</span>
+            </div>
+        </div>
+
+        <div class="stats-card">
+            <div class="stats-item">
+                <div class="stats-label"><span>🎁</span> Всего подарков</div>
+                <div class="stats-value" id="totalGifts">3</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-label"><span>⭐</span> Ваш уровень</div>
+                <div class="stats-value">Новичок</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-label"><span>💎</span> Коллекция</div>
+                <div class="stats-value">NFT</div>
+            </div>
         </div>
 
         <div id="inventory" class="inventory-grid"></div>
+
+        <div class="footer">
+            <p>ForGifts • Безопасное хранение NFT • 2024</p>
+            <p>✨ 🔵 🌊 💎 🎁</p>
+        </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
+        tg.setHeaderColor('#1a2980');
+        tg.setBackgroundColor('#1a2980');
 
         const demoInventory = [
-            { icon: '🎁', title: 'NFT Подарок #1' },
-            { icon: '🎁', title: 'NFT Подарок #2' },
-            { icon: '🎁', title: 'NFT Подарок #3' }
+            { icon: '🎁', title: 'Синий Кристалл', id: '#001' },
+            { icon: '💎', title: 'Океанский Даймонд', id: '#002' },
+            { icon: '🔵', title: 'Голубая Сфера', id: '#003' },
+            { icon: '✨', title: 'Звездная Пыль', id: '#004' },
+            { icon: '🚀', title: 'Космический NFT', id: '#005' },
+            { icon: '🌊', title: 'Волна Цифры', id: '#006' }
         ];
 
         function displayInventory() {
@@ -164,8 +304,13 @@
                 title.className = 'nft-title';
                 title.textContent = item.title;
                 
+                const id = document.createElement('div');
+                id.className = 'nft-id';
+                id.textContent = item.id;
+                
                 nftItem.appendChild(icon);
                 nftItem.appendChild(title);
+                nftItem.appendChild(id);
                 
                 inventoryDiv.appendChild(nftItem);
             });
