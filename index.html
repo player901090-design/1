@@ -43,21 +43,6 @@
             opacity: 0.9;
         }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            font-size: 18px;
-        }
-
-        .error {
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid rgba(255, 0, 0, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
         .inventory-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -102,11 +87,11 @@
             border-radius: 10px;
         }
 
-        .nft-link {
-            font-size: 12px;
-            opacity: 0.8;
-            word-break: break-all;
+        .nft-title {
+            font-size: 14px;
+            font-weight: 600;
             margin-top: 10px;
+            opacity: 0.9;
         }
 
         .empty-state {
@@ -126,21 +111,6 @@
         .empty-state-text {
             font-size: 18px;
             opacity: 0.8;
-        }
-
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid #ffffff;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 480px) {
@@ -164,108 +134,44 @@
             <p>Ваши NFT подарки</p>
         </div>
 
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <p>Загрузка инвентаря...</p>
-        </div>
-
-        <div id="error" class="error" style="display: none;"></div>
-
-        <div id="inventory" class="inventory-grid" style="display: none;"></div>
-
-        <div id="empty" class="empty-state" style="display: none;">
-            <div class="empty-state-icon">📦</div>
-            <div class="empty-state-text">Ваш инвентарь пуст</div>
-        </div>
+        <div id="inventory" class="inventory-grid"></div>
     </div>
 
-    <script src="config.js"></script>
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
 
-        async function loadInventory() {
-            try {
-                const initData = tg.initData;
-                
-                if (!initData) {
-                    throw new Error('Не удалось получить данные пользователя');
-                }
+        const demoInventory = [
+            { icon: '🎁', title: 'NFT Подарок #1' },
+            { icon: '🎁', title: 'NFT Подарок #2' },
+            { icon: '🎁', title: 'NFT Подарок #3' }
+        ];
 
-                const response = await fetch(CONFIG.API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ initData: initData })
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Ошибка загрузки инвентаря');
-                }
-
-                const data = await response.json();
-                displayInventory(data.inventory);
-            } catch (error) {
-                console.error('Error loading inventory:', error);
-                showError('Не удалось загрузить инвентарь. Попробуйте позже.');
-            }
-        }
-
-        function displayInventory(inventory) {
-            document.getElementById('loading').style.display = 'none';
-            
-            if (!inventory || inventory.length === 0) {
-                document.getElementById('empty').style.display = 'block';
-                return;
-            }
-
+        function displayInventory() {
             const inventoryDiv = document.getElementById('inventory');
-            inventoryDiv.style.display = 'grid';
             inventoryDiv.innerHTML = '';
 
-            inventory.forEach((item, index) => {
+            demoInventory.forEach((item) => {
                 const nftItem = document.createElement('div');
                 nftItem.className = 'nft-item';
                 
                 const icon = document.createElement('div');
                 icon.className = 'nft-icon';
+                icon.textContent = item.icon;
                 
-                const img = document.createElement('img');
-                img.src = item.link;
-                img.alt = 'NFT Gift';
-                img.onerror = function() {
-                    this.style.display = 'none';
-                    icon.textContent = '🎁';
-                };
-                icon.appendChild(img);
-                
-                const linkText = document.createElement('div');
-                linkText.className = 'nft-link';
-                linkText.textContent = item.link.substring(0, 20) + '...';
+                const title = document.createElement('div');
+                title.className = 'nft-title';
+                title.textContent = item.title;
                 
                 nftItem.appendChild(icon);
-                nftItem.appendChild(linkText);
-                
-                nftItem.onclick = function() {
-                    window.open(item.link, '_blank');
-                };
+                nftItem.appendChild(title);
                 
                 inventoryDiv.appendChild(nftItem);
             });
         }
 
-        function showError(message) {
-            document.getElementById('loading').style.display = 'none';
-            const errorDiv = document.getElementById('error');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
-
-        loadInventory();
+        displayInventory();
     </script>
 </body>
 </html>
-
