@@ -1,0 +1,102 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0a0a2a, #1a1a4a);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    max-width: 1200px;
+    width: 100%;
+    text-align: center;
+}
+
+.title {
+    font-size: 2.8rem;
+    margin-bottom: 40px;
+    color: #4fc3f7;
+    text-shadow: 0 0 10px rgba(79, 195, 247, 0.5);
+}
+
+.title i {
+    margin-right: 15px;
+}
+
+.nft-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 25px;
+}
+
+.nft-card {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 25px;
+    width: 280px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(79, 195, 247, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.nft-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(79, 195, 247, 0.4);
+}
+
+.nft-icon {
+    font-size: 4rem;
+    color: #4fc3f7;
+    margin-bottom: 20px;
+}
+
+.nft-name {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+.nft-id {
+    font-size: 1.2rem;
+    color: #b3e5fc;
+    margin-bottom: 25px;
+}
+
+.take-btn {
+    background: linear-gradient(90deg, #4fc3f7, #2979ff);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.take-btn:hover {
+    background: linear-gradient(90deg, #29b6f6, #1a68e6);
+    box-shadow: 0 0 15px rgba(79, 195, 247, 0.7);
+}
+
+.empty-message {
+    font-size: 1.5rem;
+    color: #888;
+    margin-top: 40px;
+    display: none;
+}
