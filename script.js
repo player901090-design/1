@@ -30,15 +30,18 @@ document.addEventListener('DOMContentLoaded', async function() {
             document.getElementById('inventory-list').innerHTML = '<p class="empty-message">No NFTs yet.</p>';
             return;
         }
-        
-// Генерация квадратных карточек
+
+// Генерация карточек
 let html = '';
 inventory.forEach(item => {
+    // Обрезаем длинное название
+    const shortName = item.id.length > 20 ? item.id.substring(0, 18) + '...' : item.id;
+    
     html += `
     <div class="nft-card">
         <div class="nft-badge">NFT</div>
         <div class="nft-content">
-            <a class="nft-name" href="${item.link}" target="_blank" title="${item.id}">${item.id}</a>
+            <a class="nft-name" href="${item.link}" target="_blank" title="${item.id}">${shortName}</a>
             <button class="withdraw-btn" data-nft="${item.id}">Withdraw</button>
         </div>
     </div>
@@ -71,4 +74,5 @@ document.getElementById('inventory-list').innerHTML = html;
         document.getElementById('inventory-list').innerHTML = '<p class="empty-message">Failed to load. Try again later.</p>';
     }
 });
+
 
