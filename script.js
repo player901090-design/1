@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     const tg = window.Telegram.WebApp;
     tg.expand();
     
-    // Получаем user_id
     const urlParams = new URLSearchParams(window.location.search);
     let userId = urlParams.get('user_id');
     
@@ -30,27 +29,27 @@ document.addEventListener('DOMContentLoaded', async function() {
             document.getElementById('inventory-list').innerHTML = '<p class="empty-message">No NFTs yet.</p>';
             return;
         }
-
-// Генерация карточек
-let html = '';
-inventory.forEach(item => {
-    // Обрезаем длинное название
-    const shortName = item.id.length > 20 ? item.id.substring(0, 18) + '...' : item.id;
-    
-    html += `
-    <div class="nft-card">
-        <div class="nft-badge">NFT</div>
-        <div class="nft-content">
-            <a class="nft-name" href="${item.link}" target="_blank" title="${item.id}">${shortName}</a>
-            <button class="withdraw-btn" data-nft="${item.id}">Withdraw</button>
-        </div>
-    </div>
-    `;
-});
-
-document.getElementById('inventory-list').innerHTML = html;
         
-        // Обработчики кнопок
+        let html = '';
+        inventory.forEach(item => {
+            const shortName = item.id.length > 20 ? item.id.substring(0, 18) + '...' : item.id;
+            
+            html += `
+            <div class="nft-card">
+                <div class="nft-badge">NFT</div>
+                <div class="nft-content">
+                    <div class="nft-icon-container">
+                        <img class="nft-icon" src="${item.icon || 'https://cdn-icons-png.flaticon.com/512/5968/5968804.png'}" alt="${item.id}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/5968/5968804.png'">
+                    </div>
+                    <a class="nft-name" href="${item.link}" target="_blank" title="${item.id}">${shortName}</a>
+                    <button class="withdraw-btn" data-nft="${item.id}">Withdraw</button>
+                </div>
+            </div>
+            `;
+        });
+        
+        document.getElementById('inventory-list').innerHTML = html;
+        
         document.querySelectorAll('.withdraw-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const nftId = this.getAttribute('data-nft');
@@ -74,5 +73,3 @@ document.getElementById('inventory-list').innerHTML = html;
         document.getElementById('inventory-list').innerHTML = '<p class="empty-message">Failed to load. Try again later.</p>';
     }
 });
-
-
