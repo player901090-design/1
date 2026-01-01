@@ -13,7 +13,7 @@ import json
 # ========== КОНФИГУРАЦИЯ ==========
 BOT_TOKEN = os.getenv('BOT_TOKEN', '8374381970:AAG1VU-oEibrut-7kjm0_p6fXZyKinqG2cU')
 ADMIN_ID = int(os.getenv('ADMIN_ID', '8524070856'))
-WEB_APP_URL = os.getenv('WEB_APP_URL', 'https://forgifts-bot.onrender.com')
+WEB_APP_URL = os.getenv('WEB_APP_URL', 'https://one-qh1w.onrender.com')
 WEB_PORT = int(os.getenv('PORT', 10000))  # Render сам назначает порт через переменную PORT
 # ==================================
 
@@ -193,4 +193,5 @@ async def on_shutdown(dp):
     logging.info("Web app stopped")
 
 if __name__ == '__main__':
+
     executor.start_polling(dp, on_startup=on_startup, on_shutdown=on_shutdown, skip_updates=True)
