@@ -4,4 +4,3 @@ beautifulsoup4>=4.12.0
 lxml>=5.0.0
 pyrogram>=2.0.0
 tgcrypto>=1.2.5
-aiohttp-session>=2.12.0
