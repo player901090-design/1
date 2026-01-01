@@ -14,22 +14,21 @@ body {
 
 #inventory-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(3, 1fr); /* Фиксировано 3 в ряд */
     gap: 16px;
     justify-items: center;
 }
 
-/* Маленькая квадратная карточка */
+/* Квадратная карточка */
 .nft-card {
     background: #1a1a1a;
     border-radius: 12px;
-    width: 140px;
-    height: 140px;
+    width: 100%;
+    max-width: 180px; /* Немного шире для 3 в ряд */
+    aspect-ratio: 1 / 1; /* Квадрат */
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px;
+    padding: 14px;
     box-sizing: border-box;
     border: 1px solid #2a2a2a;
     transition: all 0.2s ease;
@@ -43,52 +42,62 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Бейдж NFT (верхний правый угол, очень маленький) */
+/* Бейдж NFT (верхний правый угол) */
 .nft-badge {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 10px;
+    right: 10px;
     background: linear-gradient(135deg, #8a2be2, #4a00e0);
     color: white;
     font-size: 10px;
     font-weight: 700;
-    padding: 3px 6px;
+    padding: 3px 8px;
     border-radius: 6px;
     letter-spacing: 0.3px;
 }
 
-/* Название NFT (компактное) */
+/* Контейнер для названия (растягивается, чтобы кнопка была внизу) */
+.nft-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+}
+
+/* Название NFT (над кнопкой) */
 .nft-name {
     font-size: 13px;
     font-weight: 500;
     color: #e0e0e0;
     text-decoration: none;
     text-align: center;
-    margin-top: 20px;
-    width: 100%;
-    white-space: nowrap;
+    margin-bottom: 10px;
+    line-height: 1.3;
+    word-break: break-word;
     overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 0 5px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 .nft-name:hover {
     color: #8a2be2;
 }
 
-/* Кнопка Withdraw (компактная, внизу) */
+/* Кнопка Withdraw (внизу карточки) */
 .withdraw-btn {
     background: linear-gradient(135deg, #8a2be2, #4a00e0);
     color: white;
     border: none;
-    padding: 6px 12px;
+    padding: 8px 12px;
     border-radius: 8px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     width: 100%;
     transition: opacity 0.2s;
-    margin-top: auto;
+    margin-top: auto; /* Прижимаем к низу */
 }
 
 .withdraw-btn:hover {
@@ -105,15 +114,17 @@ body {
 }
 
 /* Адаптивность */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     #inventory-list {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(2, 1fr); /* 2 в ряд на планшетах */
     }
-    
+}
+
+@media (max-width: 480px) {
+    #inventory-list {
+        grid-template-columns: 1fr; /* 1 в ряд на телефонах */
+    }
     .nft-card {
-        width: 120px;
-        height: 120px;
-        padding: 10px;
+        max-width: 200px;
     }
 }
