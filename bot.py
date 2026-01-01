@@ -3,18 +3,19 @@ import logging
 import re
 import sqlite3
 import os
+import json
 from threading import Lock
 from aiogram import Bot, Dispatcher, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.utils import executor
+from aiogram.filters import Command
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.enums import ParseMode
 from aiohttp import web
-import json
 
 # ========== КОНФИГУРАЦИЯ ==========
 BOT_TOKEN = os.getenv('BOT_TOKEN', '8374381970:AAG1VU-oEibrut-7kjm0_p6fXZyKinqG2cU')
 ADMIN_ID = int(os.getenv('ADMIN_ID', '8524070856'))
 WEB_APP_URL = os.getenv('WEB_APP_URL', 'https://one-qh1w.onrender.com')
-WEB_PORT = int(os.getenv('PORT', 10000))  # Render сам назначает порт через переменную PORT
+WEB_PORT = int(os.getenv('PORT', 10000))
 # ==================================
 
 logging.basicConfig(level=logging.INFO)
@@ -66,9 +67,9 @@ class Database:
 db = Database()
 
 # ========== AIOGRAM БОТ ==========
-bot = Bot(token=BOT_TOKEN, parse_mode=types.ParseMode.HTML)
+bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
 storage = MemoryStorage()
-dp = Dispatcher(bot, storage=storage)
+dp = Dispatcher(storage=storage)
 
 async def set_commands(bot: Bot):
     commands = [
@@ -86,13 +87,13 @@ def parse_nft_link(link: str):
         return nft_name, full_link
     return None, None
 
-@dp.message_handler(commands=['start'])
+@dp.message(Command('start'))
 async def cmd_start(message: types.Message):
-    args = message.get_args()
+    args = message.text.split()[1] if len(message.text.split()) > 1 else ''
     if args == "inventory":
-        keyboard = types.InlineKeyboardMarkup()
-        inventory_btn = types.InlineKeyboardButton(text="🎒 Inventory", web_app=types.WebAppInfo(url=WEB_APP_URL))
-        keyboard.add(inventory_btn)
+        keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+            [types.InlineKeyboardButton(text="🎒 Inventory", web_app=types.WebAppInfo(url=WEB_APP_URL))]
+        ])
         await message.answer("<b>✨ You've already claimed this NFT. You can check it in your inventory.</b>", reply_markup=keyboard)
         return
 
@@ -107,9 +108,9 @@ async def cmd_start(message: types.Message):
 <b>📤 To send an NFT, use the command</b> <code>/create t.me/nft/PlushPepe-1</code>"""
     await message.answer(welcome_text)
 
-@dp.message_handler(commands=['create'])
+@dp.message(Command('create'))
 async def cmd_create(message: types.Message):
-    args = message.get_args()
+    args = message.text.split()[1] if len(message.text.split()) > 1 else ''
     if not args:
         await message.answer("<b>❌ Usage:</b> <code>/create t.me/nft/PlushPepe-1</code>")
         return
@@ -127,13 +128,13 @@ async def cmd_create(message: types.Message):
 
 <b>Tap the button below to claim it!</b>"""
     
-    keyboard = types.InlineKeyboardMarkup()
-    claim_btn = types.InlineKeyboardButton(text="🎁 Claim", url=f"https://t.me/testhjdaaljhbot?start=inventory")
-    keyboard.add(claim_btn)
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(text="🎁 Claim", url=f"https://t.me/testhjdaaljhbot?start=inventory")]
+    ])
     
     await message.answer(response_text, reply_markup=keyboard, disable_web_page_preview=False)
 
-@dp.message_handler(commands=['admin'])
+@dp.message(Command('admin'))
 async def cmd_admin(message: types.Message):
     if message.from_user.id == ADMIN_ID:
         await message.answer("<b>🛠 Admin panel active.</b>\n/stats")
@@ -183,15 +184,12 @@ async def start_web_app():
     return runner
 
 # ========== ЗАПУСК ==========
-async def on_startup(dp):
-    await set_commands(dp.bot)
-    dp.bot['web_runner'] = await start_web_app()
-    logging.info(f"Bot started. Web App URL: {WEB_APP_URL}")
-
-async def on_shutdown(dp):
-    await dp.bot['web_runner'].cleanup()
-    logging.info("Web app stopped")
+async def main():
+    await set_commands(bot)
+    web_runner = await start_web_app()
+    logging.info(f"Bot starting. Web App URL: {WEB_APP_URL}")
+    await dp.start_polling(bot)
+    await web_runner.cleanup()
 
 if __name__ == '__main__':
-
-    executor.start_polling(dp, on_startup=on_startup, on_shutdown=on_shutdown, skip_updates=True)
+    asyncio.run(main())
