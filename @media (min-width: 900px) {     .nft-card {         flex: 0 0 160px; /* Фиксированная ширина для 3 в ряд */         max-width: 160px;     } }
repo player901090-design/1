@@ -19,11 +19,12 @@ body {
     justify-content: flex-start;
 }
 
+/* Квадратная карточка */
 .nft-card {
     background: #1a1a1a;
     border-radius: 12px;
-    width: 160px; /* Фиксированная ширина */
-    height: 160px; /* Равная высота = квадрат */
+    width: 160px;
+    height: 160px;
     display: flex;
     flex-direction: column;
     padding: 12px;
@@ -31,9 +32,16 @@ body {
     border: 1px solid #2a2a2a;
     position: relative;
     overflow: hidden;
-    flex-shrink: 0; /* Чтобы не сжималось */
+    flex-shrink: 0;
 }
 
+.nft-card:hover {
+    border-color: #3a3a3a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Бейдж NFT (верхний правый угол) */
 .nft-badge {
     position: absolute;
     top: 8px;
@@ -46,6 +54,7 @@ body {
     border-radius: 6px;
 }
 
+/* Контейнер для содержимого */
 .nft-content {
     flex-grow: 1;
     display: flex;
@@ -54,19 +63,22 @@ body {
     margin-top: 20px;
 }
 
+/* Контейнер для иконки */
 .nft-icon-container {
     text-align: center;
     margin-bottom: 8px;
 }
 
+/* Иконка NFT (увеличенная) */
 .nft-icon {
-    width: 70px; /* Увеличил иконку */
-    height: 70px; /* Увеличил иконку */
-    border-radius: 10px; /* Чуть больше скругление */
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
     object-fit: cover;
     border: 1px solid #333;
 }
 
+/* Название NFT (под иконкой) */
 .nft-name {
     font-size: 13px;
     font-weight: 500;
@@ -86,6 +98,7 @@ body {
     color: #8a2be2;
 }
 
+/* Кнопка Withdraw (в самом низу) */
 .withdraw-btn {
     background: linear-gradient(135deg, #8a2be2, #4a00e0);
     color: white;
@@ -96,12 +109,14 @@ body {
     font-weight: 600;
     cursor: pointer;
     width: 100%;
+    transition: opacity 0.2s;
 }
 
 .withdraw-btn:hover {
     opacity: 0.9;
 }
 
+/* Сообщения */
 .empty-message {
     font-size: 14px;
     color: #666;
@@ -110,25 +125,30 @@ body {
     padding: 40px 0;
 }
 
+/* 3 карточки в ряд на десктопе */
 @media (min-width: 900px) {
     .nft-card {
-        flex: 0 0 160px; /* Фиксированная ширина для 3 в ряд */
+        flex: 0 0 160px;
         max-width: 160px;
     }
 }
 
+/* 2 карточки в ряд на планшетах */
 @media (max-width: 899px) and (min-width: 600px) {
     .nft-card {
-        flex: 0 0 160px; /* Фиксированная ширина для 2 в ряд */
+        flex: 0 0 160px;
         max-width: 160px;
     }
 }
 
+/* 1 карточка в ряд на телефонах */
 @media (max-width: 599px) {
     .nft-card {
         flex: 0 0 160px;
         max-width: 160px;
         margin: 0 auto;
     }
+    #inventory-list {
+        justify-content: center;
+    }
 }
-
