@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import asyncio
 import logging
 import re
@@ -9,7 +10,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums import ParseMode
-from aiohttp import web
+from aiohttp import web    
 
 # ========== КОНФИГУРАЦИЯ ==========
 BOT_TOKEN = os.getenv('BOT_TOKEN', '8374381970:AAG1VU-oEibrut-7kjm0_p6fXZyKinqG2cU')
@@ -193,3 +194,4 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+
