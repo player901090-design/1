@@ -69,7 +69,7 @@ class Database:
 db = Database()
 
 # ========== AIOGRAM БОТ ==========
-bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))  # ИСПРАВЛЕННАЯ СТРОКА
+bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
@@ -93,8 +93,10 @@ def parse_nft_link(link: str):
 async def cmd_start(message: types.Message):
     args = message.text.split()[1] if len(message.text.split()) > 1 else ''
     if args == "inventory":
+        # Передаём user_id в URL Web App
+        web_app_url_with_params = f"{WEB_APP_URL}?user_id={message.from_user.id}"
         keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
-            [types.InlineKeyboardButton(text="🎒 Inventory", web_app=types.WebAppInfo(url=WEB_APP_URL))]
+            [types.InlineKeyboardButton(text="🎒 Inventory", web_app=types.WebAppInfo(url=web_app_url_with_params))]
         ])
         await message.answer("<b>✨ You've already claimed this NFT. You can check it in your inventory.</b>", reply_markup=keyboard)
         return
@@ -110,31 +112,36 @@ async def cmd_start(message: types.Message):
 <b>📤 To send an NFT, use the command</b> <code>/create t.me/nft/PlushPepe-1</code>"""
     await message.answer(welcome_text)
 
-@dp.message(Command('start'))
-async def cmd_start(message: types.Message):
-    args = message.text.split()[1] if len(message.text.split()) > 1 else ''
-    if args == "inventory":
-        # Передаём user_id в URL Web App
-        web_app_url_with_params = f"{WEB_APP_URL}?user_id={message.from_user.id}"
-        keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
-            [types.InlineKeyboardButton(text="🎒 Inventory", web_app=types.WebAppInfo(url=web_app_url_with_params))]
-        ])
-        await message.answer("<b>✨ You've already claimed this NFT. You can check it in your inventory.</b>", reply_markup=keyboard)
-        return
-    
-    user_id = message.from_user.id
-    db.add_nft(user_id, nft_name, full_link)
-    
-    response_text = f"""<b>🎁 You've received an NFT!</b>
+@dp.message(Command('create'))
+async def cmd_create(message: types.Message):
+    try:
+        args = message.text.split()[1] if len(message.text.split()) > 1 else ''
+        if not args:
+            await message.answer("<b>❌ Usage:</b> <code>/create t.me/nft/PlushPepe-1</code>")
+            return
+        
+        nft_name, full_link = parse_nft_link(args)
+        if not nft_name:
+            await message.answer("<b>❌ Invalid NFT link format.</b> Use: <code>t.me/nft/Name-Number</code>")
+            return
+        
+        user_id = message.from_user.id
+        db.add_nft(user_id, nft_name, full_link)
+        
+        response_text = f"""<b>🎁 You've received an NFT!</b>
 <a href="{full_link}">{nft_name}</a> has been gifted to you via ForGifts.
 
 <b>Tap the button below to claim it!</b>"""
-    
-    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text="🎁 Claim", url=f"https://t.me/testhjdaaljhbot?start=inventory")]
-    ])
-    
-    await message.answer(response_text, reply_markup=keyboard, disable_web_page_preview=False)
+        
+        keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+            [types.InlineKeyboardButton(text="🎁 Claim", url=f"https://t.me/testhjdaaljhbot?start=inventory")]
+        ])
+        
+        await message.answer(response_text, reply_markup=keyboard, disable_web_page_preview=False)
+        logging.info(f"User {user_id} added NFT: {nft_name}")
+    except Exception as e:
+        logging.error(f"Error in /create: {e}")
+        await message.answer("<b>❌ Internal error. Try again.</b>")
 
 @dp.message(Command('admin'))
 async def cmd_admin(message: types.Message):
@@ -169,6 +176,7 @@ async def handle_api_inventory(request):
         inventory = db.get_user_inventory(user_id)
         return web.json_response({'inventory': inventory})
     except Exception as e:
+        logging.error(f"API error: {e}")
         return web.json_response({'error': str(e)}, status=500)
 
 async def start_web_app():
@@ -190,12 +198,14 @@ async def main():
     await set_commands(bot)
     web_runner = await start_web_app()
     logging.info(f"Bot starting. Web App URL: {WEB_APP_URL}")
-    await dp.start_polling(bot)
-    await web_runner.cleanup()
+    
+    # Сброс предыдущих обновлений, чтобы избежать конфликта
+    await bot.delete_webhook(drop_pending_updates=True)
+    
+    try:
+        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+    finally:
+        await web_runner.cleanup()
 
 if __name__ == '__main__':
     asyncio.run(main())
-
-
-
-
