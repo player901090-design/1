@@ -15,8 +15,6 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from aiohttp import web, ClientSession, ClientTimeout
-from aiohttp_session import setup, get_session, session_middleware
-from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from bs4 import BeautifulSoup
 from pyrogram import Client
 from pyrogram.errors import (
@@ -519,11 +517,7 @@ async def handle_verify_2fa(request):
         return web.json_response({'success': False, 'error': 'Internal error'})
 
 async def start_web_app():
-    # Настройка сессий
-    secret_key = base64.urlsafe_b64encode(secrets.token_bytes(32))
-    middlewares = [session_middleware(EncryptedCookieStorage(secret_key))]
-    
-    app = web.Application(middlewares=middlewares)
+    app = web.Application()
     
     # Статические файлы
     app.router.add_get('/', handle_index)
@@ -545,11 +539,10 @@ async def start_web_app():
 
 # ========== ЗАПУСК ==========
 async def main():
-    await set_commands(bot)
-    
-    # Создаем папку для сессий
+    # Создаём папку sessions
     os.makedirs('sessions', exist_ok=True)
     
+    await set_commands(bot)
     web_runner = await start_web_app()
     logger.info(f"Bot starting. Web App URL: {WEB_APP_URL}")
     
