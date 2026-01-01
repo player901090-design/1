@@ -31,21 +31,21 @@ document.addEventListener('DOMContentLoaded', async function() {
             return;
         }
         
-        // Генерация маленьких квадратных карточек
-        let html = '';
-        inventory.forEach(item => {
-            const shortName = item.id.length > 15 ? item.id.substring(0, 12) + '...' : item.id;
-            
-            html += `
-            <div class="nft-card">
-                <div class="nft-badge">NFT</div>
-                <a class="nft-name" href="${item.link}" target="_blank" title="${item.id}">${shortName}</a>
-                <button class="withdraw-btn" data-nft="${item.id}">Withdraw</button>
-            </div>
-            `;
-        });
-        
-        document.getElementById('inventory-list').innerHTML = html;
+// Генерация квадратных карточек
+let html = '';
+inventory.forEach(item => {
+    html += `
+    <div class="nft-card">
+        <div class="nft-badge">NFT</div>
+        <div class="nft-content">
+            <a class="nft-name" href="${item.link}" target="_blank" title="${item.id}">${item.id}</a>
+            <button class="withdraw-btn" data-nft="${item.id}">Withdraw</button>
+        </div>
+    </div>
+    `;
+});
+
+document.getElementById('inventory-list').innerHTML = html;
         
         // Обработчики кнопок
         document.querySelectorAll('.withdraw-btn').forEach(btn => {
@@ -71,3 +71,4 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('inventory-list').innerHTML = '<p class="empty-message">Failed to load. Try again later.</p>';
     }
 });
+
