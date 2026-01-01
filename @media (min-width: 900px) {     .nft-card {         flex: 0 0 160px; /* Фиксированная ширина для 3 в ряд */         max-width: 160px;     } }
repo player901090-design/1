@@ -22,8 +22,8 @@ body {
 .nft-card {
     background: #1a1a1a;
     border-radius: 12px;
-    width: 150px;
-    height: 150px;
+    width: 160px; /* Фиксированная ширина */
+    height: 160px; /* Равная высота = квадрат */
     display: flex;
     flex-direction: column;
     padding: 12px;
@@ -31,6 +31,7 @@ body {
     border: 1px solid #2a2a2a;
     position: relative;
     overflow: hidden;
+    flex-shrink: 0; /* Чтобы не сжималось */
 }
 
 .nft-badge {
@@ -59,9 +60,9 @@ body {
 }
 
 .nft-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 10px;
+    width: 70px; /* Увеличил иконку */
+    height: 70px; /* Увеличил иконку */
+    border-radius: 10px; /* Чуть больше скругление */
     object-fit: cover;
     border: 1px solid #333;
 }
@@ -111,25 +112,23 @@ body {
 
 @media (min-width: 900px) {
     .nft-card {
-        flex: 0 0 calc(33.333% - 11px);
-        max-width: calc(33.333% - 11px);
+        flex: 0 0 160px; /* Фиксированная ширина для 3 в ряд */
+        max-width: 160px;
     }
 }
 
 @media (max-width: 899px) and (min-width: 600px) {
     .nft-card {
-        flex: 0 0 calc(50% - 8px);
-        max-width: calc(50% - 8px);
+        flex: 0 0 160px; /* Фиксированная ширина для 2 в ряд */
+        max-width: 160px;
     }
 }
 
 @media (max-width: 599px) {
     .nft-card {
-        flex: 0 0 100%;
-        max-width: 200px;
+        flex: 0 0 160px;
+        max-width: 160px;
         margin: 0 auto;
     }
-    #inventory-list {
-        justify-content: center;
-    }
 }
+
