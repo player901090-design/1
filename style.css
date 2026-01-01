@@ -1,122 +1,119 @@
 body {
     margin: 0;
-    padding: 0;
-    background-color: #000011;
-    color: white;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    padding: 20px;
+    background-color: #0a0a0a;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     min-height: 100vh;
 }
 
 .container {
-    width: 100%;
     max-width: 1200px;
-    padding: 20px;
-    box-sizing: border-box;
+    margin: 0 auto;
 }
 
 #inventory-list {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Максимум 3 в ряд */
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
     justify-items: center;
 }
 
-/* Квадратная карточка */
+/* Маленькая квадратная карточка */
 .nft-card {
-    background: rgba(255, 255, 255, 0.08);
+    background: #1a1a1a;
     border-radius: 12px;
-    width: 100%;
-    aspect-ratio: 1 / 1; /* Делаем квадрат */
+    width: 140px;
+    height: 140px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 15px;
+    justify-content: space-between;
+    padding: 12px;
     box-sizing: border-box;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: transform 0.2s, background 0.2s;
+    border: 1px solid #2a2a2a;
+    transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
 }
 
 .nft-card:hover {
-    transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.12);
+    border-color: #3a3a3a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Бейдж NFT (верхний правый угол) */
+/* Бейдж NFT (верхний правый угол, очень маленький) */
 .nft-badge {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: linear-gradient(90deg, #4fc3f7, #6a11cb);
+    top: 8px;
+    right: 8px;
+    background: linear-gradient(135deg, #8a2be2, #4a00e0);
     color: white;
-    font-size: 11px;
-    font-weight: bold;
-    padding: 4px 10px;
-    border-radius: 10px;
-    letter-spacing: 0.5px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
 }
 
-/* Название NFT */
+/* Название NFT (компактное) */
 .nft-name {
-    font-size: 16px;
-    font-weight: bold;
-    color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    color: #e0e0e0;
     text-decoration: none;
     text-align: center;
-    margin-top: 30px;
-    word-break: break-word;
-    max-width: 90%;
+    margin-top: 20px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 5px;
 }
 
 .nft-name:hover {
-    color: #4fc3f7;
-    text-decoration: underline;
+    color: #8a2be2;
 }
 
-/* Кнопка Withdraw (внизу карточки) */
+/* Кнопка Withdraw (компактная, внизу) */
 .withdraw-btn {
-    position: absolute;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(90deg, #ff416c, #ff4b2b);
+    background: linear-gradient(135deg, #8a2be2, #4a00e0);
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 8px;
-    font-weight: bold;
+    font-size: 11px;
+    font-weight: 600;
     cursor: pointer;
-    width: 80%;
-    transition: opacity 0.3s;
+    width: 100%;
+    transition: opacity 0.2s;
+    margin-top: auto;
 }
 
 .withdraw-btn:hover {
     opacity: 0.9;
 }
 
-/* Сообщение, если инвентарь пуст */
+/* Сообщения */
 .empty-message {
-    font-size: 18px;
-    color: #888;
-    grid-column: 1 / -1;
+    font-size: 14px;
+    color: #666;
     text-align: center;
-    margin-top: 50px;
+    grid-column: 1 / -1;
+    padding: 40px 0;
 }
 
-/* Адаптивность для мобильных */
-@media (max-width: 900px) {
-    #inventory-list {
-        grid-template-columns: repeat(2, 1fr); /* 2 в ряд на планшетах */
-    }
-}
-
+/* Адаптивность */
 @media (max-width: 600px) {
     #inventory-list {
-        grid-template-columns: 1fr; /* 1 в ряд на телефонах */
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+    }
+    
+    .nft-card {
+        width: 120px;
+        height: 120px;
+        padding: 10px;
     }
 }
