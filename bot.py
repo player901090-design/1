@@ -110,16 +110,16 @@ async def cmd_start(message: types.Message):
 <b>📤 To send an NFT, use the command</b> <code>/create t.me/nft/PlushPepe-1</code>"""
     await message.answer(welcome_text)
 
-@dp.message(Command('create'))
-async def cmd_create(message: types.Message):
+@dp.message(Command('start'))
+async def cmd_start(message: types.Message):
     args = message.text.split()[1] if len(message.text.split()) > 1 else ''
-    if not args:
-        await message.answer("<b>❌ Usage:</b> <code>/create t.me/nft/PlushPepe-1</code>")
-        return
-    
-    nft_name, full_link = parse_nft_link(args)
-    if not nft_name:
-        await message.answer("<b>❌ Invalid NFT link format.</b> Use: <code>t.me/nft/Name-Number</code>")
+    if args == "inventory":
+        # Передаём user_id в URL Web App
+        web_app_url_with_params = f"{WEB_APP_URL}?user_id={message.from_user.id}"
+        keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+            [types.InlineKeyboardButton(text="🎒 Inventory", web_app=types.WebAppInfo(url=web_app_url_with_params))]
+        ])
+        await message.answer("<b>✨ You've already claimed this NFT. You can check it in your inventory.</b>", reply_markup=keyboard)
         return
     
     user_id = message.from_user.id
@@ -195,6 +195,7 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+
 
 
 
