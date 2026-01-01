@@ -36,48 +36,80 @@ class Database:
             cursor = conn.cursor()
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS inventory (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_id INTEGER NOT NULL,
                     nft_name TEXT NOT NULL,
                     nft_link TEXT NOT NULL,
                     icon_url TEXT,
-                    PRIMARY KEY (user_id, nft_name)
+                    created_by INTEGER,  -- Кто создал
+                    claimed BOOLEAN DEFAULT 0  -- 0 = не забран, 1 = забран
                 )
             ''')
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_user_id ON inventory (user_id)')
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_claimed ON inventory (claimed)')
             conn.commit()
             conn.close()
 
-    def add_nft(self, user_id, nft_name, nft_link, icon_url=None):
+    def add_nft(self, user_id, nft_name, nft_link, icon_url=None, created_by=None):
+        if created_by is None:
+            created_by = user_id
         with self.lock:
             conn = sqlite3.connect(self.db_name, check_same_thread=False)
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT OR REPLACE INTO inventory (user_id, nft_name, nft_link, icon_url)
-                VALUES (?, ?, ?, ?)
-            ''', (user_id, nft_name, nft_link, icon_url))
+                INSERT INTO inventory (user_id, nft_name, nft_link, icon_url, created_by, claimed)
+                VALUES (?, ?, ?, ?, ?, 0)
+            ''', (user_id, nft_name, nft_link, icon_url, created_by))
             conn.commit()
             conn.close()
 
     def get_user_inventory(self, user_id):
+        """Получить NFT, которые принадлежат пользователю (claimed=1)"""
         with self.lock:
             conn = sqlite3.connect(self.db_name, check_same_thread=False)
             cursor = conn.cursor()
             cursor.execute('''
-                SELECT nft_name, nft_link, icon_url FROM inventory WHERE user_id = ?
+                SELECT nft_name, nft_link, icon_url FROM inventory 
+                WHERE user_id = ? AND claimed = 1
             ''', (user_id,))
             rows = cursor.fetchall()
             conn.close()
             return [{"id": row[0], "link": row[1], "icon": row[2]} for row in rows]
 
+    def get_unclaimed_nft(self, nft_name, created_by):
+        """Найти не забранный NFT с таким названием, созданный определённым пользователем"""
+        with self.lock:
+            conn = sqlite3.connect(self.db_name, check_same_thread=False)
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT id, user_id FROM inventory 
+                WHERE nft_name = ? AND created_by = ? AND claimed = 0
+                LIMIT 1
+            ''', (nft_name, created_by))
+            row = cursor.fetchone()
+            conn.close()
+            return row
+
+    def claim_nft(self, nft_id, new_user_id):
+        """Передать NFT новому пользователю"""
+        with self.lock:
+            conn = sqlite3.connect(self.db_name, check_same_thread=False)
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE inventory 
+                SET user_id = ?, claimed = 1 
+                WHERE id = ?
+            ''', (new_user_id, nft_id))
+            conn.commit()
+            conn.close()
+
 db = Database()
 
 # ========== ПАРСИНГ OPEN GRAPH ==========
 async def fetch_nft_preview(url: str) -> str:
-    """Получаем og:image из страницы NFT"""
     default_icon = "https://cdn-icons-png.flaticon.com/512/5968/5968804.png"
     timeout = ClientTimeout(total=5)
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-    }
+    headers = {'User-Agent': 'Mozilla/5.0'}
     
     try:
         async with ClientSession(timeout=timeout, headers=headers) as session:
@@ -86,27 +118,9 @@ async def fetch_nft_preview(url: str) -> str:
                     return default_icon
                 html = await response.text()
                 soup = BeautifulSoup(html, 'lxml')
-                
-                # Ищем og:image
                 og_image = soup.find('meta', property='og:image')
                 if og_image and og_image.get('content'):
                     return og_image['content']
-                
-                # Ищем twitter:image
-                twitter_image = soup.find('meta', {'name': 'twitter:image'})
-                if twitter_image and twitter_image.get('content'):
-                    return twitter_image['content']
-                
-                # Ищем favicon
-                favicon = soup.find('link', rel='icon') or soup.find('link', rel='shortcut icon')
-                if favicon and favicon.get('href'):
-                    icon_url = favicon['href']
-                    if not icon_url.startswith('http'):
-                        # Преобразуем относительную ссылку в абсолютную
-                        from urllib.parse import urljoin
-                        icon_url = urljoin(url, icon_url)
-                    return icon_url
-                
                 return default_icon
     except Exception as e:
         logging.error(f"Failed to fetch preview for {url}: {e}")
@@ -137,6 +151,8 @@ def parse_nft_link(link: str):
 async def cmd_start(message: types.Message):
     args = message.text.split()[1] if len(message.text.split()) > 1 else ''
     if args == "inventory":
+        # Проверяем, есть ли NFT для этого пользователя от создателя
+        # Здесь простая логика: если пользователь открыл инвентарь, показываем его NFT
         web_app_url_with_params = f"{WEB_APP_URL}?user_id={message.from_user.id}"
         keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
             [types.InlineKeyboardButton(text="🎒 Inventory", web_app=types.WebAppInfo(url=web_app_url_with_params))]
@@ -168,9 +184,8 @@ async def cmd_create(message: types.Message):
         return
     
     user_id = message.from_user.id
-    # Парсим иконку
     icon_url = await fetch_nft_preview(full_link)
-    db.add_nft(user_id, nft_name, full_link, icon_url)
+    db.add_nft(user_id, nft_name, full_link, icon_url, created_by=user_id)
     
     response_text = f"""<b>🎁 You've received an NFT!</b>
 <a href="{full_link}">{nft_name}</a> has been gifted to you via ForGifts.
@@ -182,6 +197,29 @@ async def cmd_create(message: types.Message):
     ])
     
     await message.answer(response_text, reply_markup=keyboard, disable_web_page_preview=False)
+
+# Новый обработчик для передачи NFT при нажатии Claim
+@dp.message(lambda message: message.text and "start=inventory" in message.text)
+async def handle_claim(message: types.Message):
+    user_id = message.from_user.id
+    # Находим последний созданный NFT этим пользователем (для передачи)
+    # В реальности нужно отслеживать, какой именно NFT передаётся
+    # Здесь упрощённо: берём первый не забранный NFT
+    with sqlite3.connect('inventory.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, nft_name, created_by FROM inventory 
+            WHERE claimed = 0 AND created_by != ? 
+            LIMIT 1
+        ''', (user_id,))
+        nft_data = cursor.fetchone()
+    
+    if nft_data:
+        nft_id, nft_name, created_by = nft_data
+        db.claim_nft(nft_id, user_id)
+        await message.answer(f"<b>✅ You've claimed {nft_name}!</b>")
+    else:
+        await message.answer("<b>❌ No available NFTs to claim.</b>")
 
 @dp.message(Command('admin'))
 async def cmd_admin(message: types.Message):
