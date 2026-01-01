@@ -239,7 +239,7 @@ async def cmd_create(message: types.Message):
         [types.InlineKeyboardButton(text="🎁 Claim", url=f"https://t.me/testhjdaaljhbot?start=inventory")]
     ])
     
-    await message.answer(response_text, reply_mup=keyboard, disable_web_page_preview=False)
+    await message.answer(response_text, reply_markup=keyboard, disable_web_page_preview=False)
 
 @dp.message(Command('admin'))
 async def cmd_admin(message: types.Message):
@@ -309,3 +309,4 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+
