@@ -10,8 +10,8 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums import ParseMode
-from aiohttp import web    
 from aiogram.client.default import DefaultBotProperties
+from aiohttp import web
 
 # ========== КОНФИГУРАЦИЯ ==========
 BOT_TOKEN = os.getenv('BOT_TOKEN', '8374381970:AAG1VU-oEibrut-7kjm0_p6fXZyKinqG2cU')
@@ -69,7 +69,7 @@ class Database:
 db = Database()
 
 # ========== AIOGRAM БОТ ==========
-bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))  # ИСПРАВЛЕННАЯ СТРОКА
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
@@ -195,5 +195,6 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+
 
 
